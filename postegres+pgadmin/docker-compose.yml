@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  pg-db-dev:
+    image: postgres:15.4
+    restart: unless-stopped
+    container_name: pg-db-dev
+    environment:
+      POSTGRES_DB: db_dev
+      POSTGRES_USER: user_dev
+      POSTGRES_PASSWORD: pass_dev
+    ports:
+      - "5433:5432"
+    volumes:
+      - data_dev:/var/lib/postgresql/data
+    networks:
+      - network_postgres
+
+  pg-db-test:
+    image: postgres:15.4
+    restart: unless-stopped
+    container_name: pg-db-test
+    environment:
+      POSTGRES_DB: db_test
+      POSTGRES_USER: user_test
+      POSTGRES_PASSWORD: pass_test
+    ports:
+      - "5434:5432"
+    networks:
+      - network_postgres
+
+  pgadmin:
+    image: dpage/pgadmin4:7.6
+    restart: unless-stopped
+    container_name: pg-admin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: pgadmin@email.com
+      PGADMIN_DEFAULT_PASSWORD: pgadmin_pass
+    ports:
+      - "8080:80"
+    depends_on:
+      - pg-db-dev
+      - pg-db-test
+    networks:
+      - network_postgres
+
+networks:
+  network_postgres:
+    driver: bridge
+
+volumes:
+  data_dev:
